@@ -18,6 +18,12 @@
         case '/chococyber/':
             $homeController->getHome();
             break;
+        case '/chococyber/utilisateur/add':
+            $utilisateurController->addUtilisateur();
+            break;
+        case '/chococyber/utilisateur/connexion':
+            $utilisateurController->connexionUtilisateur();
+            break;
         default:
             $homeController->get404();
             break;

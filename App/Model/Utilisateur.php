@@ -49,7 +49,7 @@ class Utilisateur extends BddConnect{
     public function getImage(): ?string{
         return $this->image_utilisateur;
     }
-    public function setImage(?bool $imageUtilisateur): void{
+    public function setImage(?string $imageUtilisateur): void{
         $this->image_utilisateur = $imageUtilisateur;
     }
     public function getRole(): ?Roles{
@@ -57,6 +57,50 @@ class Utilisateur extends BddConnect{
     }
     public function setRole(?Roles $role): void{
         $this->role = $role;
+    }
+//                  Méthodes                    //
+    public function insertUtilisateur(): void {
+        try {
+            // Récupération des données
+            $nom = $this->nom_utilisateur;
+            $prenom = $this->prenom_utilisateur;
+            $email = $this->email_utilisateur;
+            $pass = $this->pass_utilisateur;
+            $image = $this->image_utilisateur;
+            $id_roles = $this->role->getId();
+            // Requête SQL
+            $requete = $this->connexion()->prepare(
+                "INSERT INTO utilisateur(nom_utilisateur,prenom_utilisateur,email_utilisateur,pass_utilisateur,image_utilisateur,id_roles) 
+                VALUE(?,?,?,?,?,?)"
+            );
+            $requete->bindParam(1,$nom,\PDO::PARAM_STR);
+            $requete->bindParam(2,$prenom,\PDO::PARAM_STR);
+            $requete->bindParam(3,$email,\PDO::PARAM_STR);
+            $requete->bindParam(4,$pass,\PDO::PARAM_STR);
+            $requete->bindParam(5,$image,\PDO::PARAM_STR);
+            $requete->bindParam(6,$id_roles,\PDO::PARAM_INT);
+            $requete->execute();
+        } catch (\Exception $e) {
+            die('Error : '.$e->getMessage());
+        }
+    }
+    public function getUtilisateurByMail(): Utilisateur|Bool{
+        try {
+            $email = $this->email_utilisateur;
+            $requete = $this->connexion()->prepare(
+            'SELECT id_utilisateur,nom_utilisateur,prenom_utilisateur,email_utilisateur,pass_utilisateur FROM utilisateur WHERE email_utilisateur = ?'
+            );
+            $requete->bindParam(1,$email,\PDO::PARAM_STR);
+            $requete->execute();
+            $requete->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, Utilisateur::class);
+            return $requete->fetch();
+        } 
+        catch (\Exception $e) {
+            die('Error : '.$e->getMessage());
+        }
+    }
+    public function __toString(): string {
+        return $this->nom_utilisateur;
     }
 }
 ?>
